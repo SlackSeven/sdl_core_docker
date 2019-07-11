@@ -3,21 +3,21 @@
 # ###########################################################################################
 
 # This image is based of debian with git preinstalled
-FROM buildpack-deps:scm
+FROM buildpack-deps:16.04-scm
 
-MAINTAINER Corey Maylone version:1.0
+# MAINTAINER Corey Maylone version:1.0
 
-ENV CORE_BRANCH=master \
+ENV CORE_BRANCH=4.4.1 \
     CORE_NETWORK_INTERFACE=eth0 \
     HMI_WEBSOCKET_ADDRESS=127.0.0.1:8087 \
-    CORE_CWD=/usr/sdl \
+    CORE_CWD=/tmp/sdl \
     HMI_CWD=/var/www 
 
 # Create our working directory and Download SDL Core from github
 RUN git clone -b $CORE_BRANCH https://github.com/smartdevicelink/sdl_core.git $CORE_CWD   
     
 # Download SDL HMI from github that correlates to the current SDL Core branch
-RUN git clone -b $CORE_BRANCH https://github.com/smartdevicelink/sdl_hmi.git $HMI_CWD
+# RUN git clone -b $CORE_BRANCH https://github.com/smartdevicelink/sdl_hmi.git $HMI_CWD
 
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -27,10 +27,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libsqlite3-dev \
         libssl-dev \
         nginx \
-        python \
+        # python \
         sudo \
         supervisor \
-        sqlite3
+        sqlite3 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Change directory to the unpacked SDL Core sourcecode
 WORKDIR $CORE_CWD
@@ -38,7 +39,8 @@ WORKDIR $CORE_CWD
 # Generate our Makefile, compile it and install
 RUN cmake -DBUILD_AVAHI_SUPPORT=OFF -DBUILD_USB_SUPPORT=OFF -DBUILD_BT_SUPPORT=OFF -DEXTENDED_MEDIA_MODE=OFF -DENABLE_HMI_PTU_DECRYPTION=OFF . \
     && make \
-    && make install
+    && make install \
+    && cd / && rm -rf $CORE_CWD
 
 # Configure dynamic linker run-time bindings
 RUN ldconfig
