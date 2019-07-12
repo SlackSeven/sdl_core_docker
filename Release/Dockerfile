@@ -24,6 +24,7 @@ RUN git clone -b $CORE_BRANCH $SDL_CORE_GIT $CORE_CWD
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \ 
         cmake \
+        pkg-config \
         libudev-dev \
         libsqlite3-dev \
         libssl-dev \
