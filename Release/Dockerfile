@@ -7,14 +7,15 @@ FROM buildpack-deps:16.04-scm
 
 # MAINTAINER Corey Maylone version:1.0
 
-ENV CORE_BRANCH=4.4.1 \
+ENV CORE_BRANCH=v4.4.1-global-log4cxx-apr \
     CORE_NETWORK_INTERFACE=eth0 \
     HMI_WEBSOCKET_ADDRESS=127.0.0.1:8087 \
     CORE_CWD=/tmp/sdl \
-    HMI_CWD=/var/www 
+    HMI_CWD=/var/www \
+    SDL_CORE_GIT=https://github.com/SlackSeven/sdl_core
 
 # Create our working directory and Download SDL Core from github
-RUN git clone -b $CORE_BRANCH https://github.com/smartdevicelink/sdl_core.git $CORE_CWD   
+RUN git clone -b $CORE_BRANCH $SDL_CORE_GIT $CORE_CWD   
     
 # Download SDL HMI from github that correlates to the current SDL Core branch
 # RUN git clone -b $CORE_BRANCH https://github.com/smartdevicelink/sdl_hmi.git $HMI_CWD
@@ -28,7 +29,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libssl-dev \
         nginx \
         # python \
-        sudo \
+        # sudo \
+        libapr1-dev \
+        libaprutil1-dev \
+        liblog4cxx-dev \
         supervisor \
         sqlite3 \
     && rm -rf /var/lib/apt/lists/*
@@ -37,7 +41,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR $CORE_CWD
 
 # Generate our Makefile, compile it and install
-RUN cmake -DBUILD_AVAHI_SUPPORT=OFF -DBUILD_USB_SUPPORT=OFF -DBUILD_BT_SUPPORT=OFF -DEXTENDED_MEDIA_MODE=OFF -DENABLE_HMI_PTU_DECRYPTION=OFF . \
+RUN cmake -DBUILD_AVAHI_SUPPORT=OFF -DBUILD_USB_SUPPORT=OFF -DBUILD_BT_SUPPORT=OFF -DEXTENDED_MEDIA_MODE=OFF -DENABLE_HMI_PTU_DECRYPTION=OFF DENABLE_SECURITY=OFF \
+    -DUSE_COTIRE=OFF \
+    -DTELEMETRY_MONITOR=OFF \
+    -DNO_REBUILD_3RD_PARTY=ON \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    . \
     && make \
     && make install \
     && cd / && rm -rf $CORE_CWD
@@ -46,7 +55,7 @@ RUN cmake -DBUILD_AVAHI_SUPPORT=OFF -DBUILD_USB_SUPPORT=OFF -DBUILD_BT_SUPPORT=O
 RUN ldconfig
 
 # Change directory to where the binaries are stored
-WORKDIR bin
+WORKDIR /usr/bin
 
 # Copy SDL Core start script into container
 COPY setup.sh setup.sh
