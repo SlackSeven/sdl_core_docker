@@ -30,7 +30,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libssl-dev \
         nginx \
         # python \
-        sudo \
+        # sudo \
         libapr1-dev \
         libaprutil1-dev \
         liblog4cxx-dev \
@@ -47,6 +47,7 @@ RUN cmake -DBUILD_AVAHI_SUPPORT=OFF -DBUILD_USB_SUPPORT=OFF -DBUILD_BT_SUPPORT=O
     -DTELEMETRY_MONITOR=OFF \
     -DNO_REBUILD_3RD_PARTY=ON \
     -DCMAKE_INSTALL_PREFIX=/usr/sdl \
+    -DTHIRD_PARTY_INSTALL_PREFIX=/usr/sdl \
     . \
     && make \
     && make install \
