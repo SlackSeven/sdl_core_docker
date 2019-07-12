@@ -30,7 +30,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libssl-dev \
         nginx \
         # python \
-        # sudo \
+        sudo \
         libapr1-dev \
         libaprutil1-dev \
         liblog4cxx-dev \
