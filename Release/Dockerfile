@@ -42,11 +42,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR $CORE_CWD
 
 # Generate our Makefile, compile it and install
-RUN cmake -DBUILD_AVAHI_SUPPORT=OFF -DBUILD_USB_SUPPORT=OFF -DBUILD_BT_SUPPORT=OFF -DEXTENDED_MEDIA_MODE=OFF -DENABLE_HMI_PTU_DECRYPTION=OFF DENABLE_SECURITY=OFF \
+RUN cmake -DBUILD_AVAHI_SUPPORT=OFF -DBUILD_USB_SUPPORT=OFF -DBUILD_BT_SUPPORT=OFF -DEXTENDED_MEDIA_MODE=OFF -DENABLE_HMI_PTU_DECRYPTION=OFF -DENABLE_SECURITY=OFF \
     -DUSE_COTIRE=OFF \
     -DTELEMETRY_MONITOR=OFF \
     -DNO_REBUILD_3RD_PARTY=ON \
-    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_PREFIX=/usr/sdl \
     . \
     && make \
     && make install \
@@ -56,7 +56,7 @@ RUN cmake -DBUILD_AVAHI_SUPPORT=OFF -DBUILD_USB_SUPPORT=OFF -DBUILD_BT_SUPPORT=O
 RUN ldconfig
 
 # Change directory to where the binaries are stored
-WORKDIR /usr/bin
+WORKDIR /usr/sdl/bin
 
 # Copy SDL Core start script into container
 COPY setup.sh setup.sh
